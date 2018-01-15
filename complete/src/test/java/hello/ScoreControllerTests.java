@@ -31,24 +31,30 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class GreetingControllerTests {
+public class ScoreControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
-
-        this.mockMvc.perform(get("/greeting")).andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, World!"));
+    public void invalid_character_returns_value_of_zero() throws Exception {
+        this.mockMvc.perform(get("/score").param("word", "!"))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value("0"));
     }
 
     @Test
-    public void paramGreetingShouldReturnTailoredMessage() throws Exception {
-
-        this.mockMvc.perform(get("/greeting").param("name", "Spring Community"))
+    public void invalid_character_with_word_returns_score_of_word() throws Exception {
+        this.mockMvc.perform(get("/score").param("word", "?hello"))
                 .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, Spring Community!"));
+                .andExpect(jsonPath("$.score").value("8"));
+    }
+
+    @Test
+    public void param_should_return_score_inside_of_json_object() throws Exception {
+        this.mockMvc.perform(get("/score").param("word", "hello"))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value("8"));
     }
 
 }
